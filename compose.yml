@@ -1,0 +1,16 @@
+services:
+  etypedb:
+    container_name: etype-db
+    image: postgres:16.4-alpine
+    environment:
+      POSTGRES_USER: etype
+      POSTGRES_PASSWORD: etypepassword
+      POSTGRES_DB: etypedb
+    ports:
+      - 5432:5432
+    restart: always
+    networks:
+      - etype
+
+networks:
+  etype:
