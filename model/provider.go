@@ -4,6 +4,7 @@ import "time"
 
 type Provider struct {
 	ID                uint      `json:"id" gorm:"primaryKey"`
+	User              User      `json:"user" gorm:"foreignKey:UserId; constraint:OnDelete:CASCADE"`
 	UserId            uint      `json:"user_id"`
 	Type              string    `json:"type"`
 	Provider          string    `json:"provider"`
