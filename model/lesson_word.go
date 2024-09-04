@@ -4,7 +4,6 @@ import "time"
 
 type LessonWord struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
-	Lesson    Lesson    `json:"lesson" gorm:"foreignKey:LessonId; constraint:OnDelete:CASCADE"`
 	LessonID  uint      `json:"lesson_id" gorm:"not null"`
 	WordID    uint      `json:"word_id" gorm:"not null"`
 	CreatedAt time.Time `json:"created_at"`
