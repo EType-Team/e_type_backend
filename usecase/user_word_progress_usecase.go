@@ -75,13 +75,19 @@ func (uwpu *userWordProgressUsecase) UpdateUserWordProgress(userWordProgress mod
 	if err := uwpu.uwpr.UpdateUserWordProgress(&userWordProgress, userId, userWordProgressId); err != nil {
 		return model.UserWordProgressResponse{}, err
 	}
+
+	updateUserWordProgress := model.UserWordProgress{}
+	if err := uwpu.uwpr.GetUserWordProgressById(&updateUserWordProgress, userId, userWordProgressId); err != nil {
+		return model.UserWordProgressResponse{}, err
+	}
+
 	resUserWordProgress := model.UserWordProgressResponse{
-		ID:           userWordProgress.ID,
-		UserID:       userWordProgress.UserID,
-		WordID:       userWordProgress.WordID,
-		TotalTypings: userWordProgress.TotalTypings,
-		TypingSpeed:  userWordProgress.TypingSpeed,
-		Proficiency:  userWordProgress.Proficiency,
+		ID:           updateUserWordProgress.ID,
+		UserID:       updateUserWordProgress.UserID,
+		WordID:       updateUserWordProgress.WordID,
+		TotalTypings: updateUserWordProgress.TotalTypings,
+		TypingSpeed:  updateUserWordProgress.TypingSpeed,
+		Proficiency:  updateUserWordProgress.Proficiency,
 	}
 	return resUserWordProgress, nil
 }
