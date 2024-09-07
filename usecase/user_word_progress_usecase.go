@@ -3,6 +3,7 @@ package usecase
 import (
 	"api/model"
 	"api/repository"
+	"api/validator"
 )
 
 type IUserWordProgressUsecase interface {
@@ -14,10 +15,14 @@ type IUserWordProgressUsecase interface {
 
 type userWordProgressUsecase struct {
 	uwpr repository.IUserWordProgressRepository
+	uwpv validator.IUserWordProgressValidator
 }
 
-func NewUserWordProgressUsecase(uwpr repository.IUserWordProgressRepository) IUserWordProgressUsecase {
-	return &userWordProgressUsecase{uwpr}
+func NewUserWordProgressUsecase(
+	uwpr repository.IUserWordProgressRepository,
+	uwpv validator.IUserWordProgressValidator,
+) IUserWordProgressUsecase {
+	return &userWordProgressUsecase{uwpr, uwpv}
 }
 
 func (uwpu *userWordProgressUsecase) GetAllUserWordProgress(userId uint) ([]model.UserWordProgressResponse, error) {
@@ -57,6 +62,10 @@ func (uwpu *userWordProgressUsecase) GetUserWordProgressById(userId uint, userWo
 }
 
 func (uwpu *userWordProgressUsecase) CreateUserWordProgress(userWordProgress model.UserWordProgress) (model.UserWordProgressResponse, error) {
+	if err := uwpu.uwpv.UserWordProgressValidate(userWordProgress); err != nil {
+		return model.UserWordProgressResponse{}, err
+	}
+
 	if err := uwpu.uwpr.CreateUserWordProgress(&userWordProgress); err != nil {
 		return model.UserWordProgressResponse{}, err
 	}
@@ -72,6 +81,10 @@ func (uwpu *userWordProgressUsecase) CreateUserWordProgress(userWordProgress mod
 }
 
 func (uwpu *userWordProgressUsecase) UpdateUserWordProgress(userWordProgress model.UserWordProgress, userId uint, userWordProgressId uint) (model.UserWordProgressResponse, error) {
+	if err := uwpu.uwpv.UserWordProgressValidate(userWordProgress); err != nil {
+		return model.UserWordProgressResponse{}, err
+	}
+
 	if err := uwpu.uwpr.UpdateUserWordProgress(&userWordProgress, userId, userWordProgressId); err != nil {
 		return model.UserWordProgressResponse{}, err
 	}
