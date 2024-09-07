@@ -1,15 +1,27 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"api/controller"
+	"api/db"
+	"api/repository"
+	"api/router"
+	"api/usecase"
+	"api/validator"
 )
 
 func main() {
-	router := gin.Default()
-	router.GET("/ping", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{
-			"message": "ping",
-		})
-	})
-	router.Run() // 0.0.0.0:8080 でサーバーをたてる
+	db := db.NewDB()
+
+	userValidator := validator.NewUserValidator()
+	userRepository := repository.NewUserRepository(db)
+	userUsecase := usecase.NewUserUsecase(userRepository, userValidator)
+	userController := controller.NewUserController(userUsecase)
+
+	userWordProgressValidator := validator.NewUserWordProgressValidator()
+	userWordProgressRepository := repository.NewUserWordProgressRepository(db)
+	userWordProgressUsecase := usecase.NewUserWordProgressUsecase(userWordProgressRepository, userWordProgressValidator)
+	userWordProgressController := controller.NewUserWordProgressController(userWordProgressUsecase)
+
+	e := router.NewRouter(userController, userWordProgressController)
+	e.Logger.Fatal(e.Start(":8080"))
 }
