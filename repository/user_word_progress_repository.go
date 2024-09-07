@@ -45,7 +45,18 @@ func (uwpr *userWordProgressRepository) CreateUserWordProgress(userWordProgress 
 }
 
 func (uwpr *userWordProgressRepository) UpdateUserWordProgress(userWordProgress *model.UserWordProgress, userId uint, userWordProgressId uint) error {
-	result := uwpr.db.Model(userWordProgress).Clauses(clause.Returning{}).Where("id=? AND user_id=?", userWordProgressId, userId).Update("total_typings", userWordProgress)
+	existingUserWordProgress := model.UserWordProgress{}
+	if err := uwpr.db.Where("id=? AND user_id=?", userWordProgressId, userId).First(&existingUserWordProgress).Error; err != nil {
+		return err
+	}
+
+	existingUserWordProgress.TotalTypings += 1
+
+	result := uwpr.db.Model(&existingUserWordProgress).Clauses(clause.Returning{}).Where("id=? AND user_id=?", userWordProgressId, userId).Updates(map[string]interface{}{
+		"total_typings": existingUserWordProgress.TotalTypings,
+		"typing_speed":  userWordProgress.TypingSpeed,
+		"proficiency":   0.0,
+	})
 	if result.Error != nil {
 		return result.Error
 	}
