@@ -31,7 +31,7 @@ func (uwpu *userWordProgressUsecase) GetAllUserWordProgress(userId uint) ([]mode
 			ID:           v.ID,
 			UserID:       v.UserID,
 			WordID:       v.WordID,
-			TotalTypings: int(v.TypingSpeed),
+			TotalTypings: int(v.TotalTypings),
 			TypingSpeed:  v.TypingSpeed,
 			Proficiency:  v.Proficiency,
 		}
