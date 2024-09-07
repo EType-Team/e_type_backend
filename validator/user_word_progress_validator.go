@@ -12,7 +12,7 @@ type IUserWordProgressValidator interface {
 
 type userWordProgressValidator struct{}
 
-func NewTaskValidator() IUserWordProgressValidator {
+func NewUserWordProgressValidator() IUserWordProgressValidator {
 	return &userWordProgressValidator{}
 }
 
