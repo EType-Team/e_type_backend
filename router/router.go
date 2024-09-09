@@ -10,7 +10,11 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func NewRouter(uc controller.IUserController, uwpc controller.IUserWordProgressController) *echo.Echo {
+func NewRouter(
+	uc controller.IUserController,
+	lc controller.ILessonController,
+	uwpc controller.IUserWordProgressController,
+) *echo.Echo {
 	e := echo.New()
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:3000", os.Getenv("FRONTEND_URL")},
@@ -32,14 +36,21 @@ func NewRouter(uc controller.IUserController, uwpc controller.IUserWordProgressC
 	a.POST("/login", uc.LogIn)
 	a.POST("/logout", uc.LogOut)
 	a.GET("/csrf", uc.CsrfToken)
-	t := a.Group("/userWordProgresses")
-	t.Use(echojwt.WithConfig(echojwt.Config{
+
+	securedGroup := a.Group("")
+	securedGroup.Use(echojwt.WithConfig(echojwt.Config{
 		SigningKey:  []byte(os.Getenv("SECRET")),
 		TokenLookup: "cookie:token",
 	}))
-	t.GET("", uwpc.GetAllUserWordProgress)
-	t.GET("/:userWordProgressId", uwpc.GetUserWordProgressById)
-	t.POST("", uwpc.CreateUserWordProgress)
-	t.PUT("/:userWordProgressId", uwpc.UpdateUserWordProgress)
+
+	l := securedGroup.Group("/lessons")
+	l.GET("", lc.GetAllLesson)
+	l.GET("/:lessonId", lc.GetLessonById)
+
+	uwp := securedGroup.Group("/userWordProgresses")
+	uwp.GET("", uwpc.GetAllUserWordProgress)
+	uwp.GET("/:userWordProgressId", uwpc.GetUserWordProgressById)
+	uwp.POST("", uwpc.CreateUserWordProgress)
+	uwp.PUT("/:userWordProgressId", uwpc.UpdateUserWordProgress)
 	return e
 }
