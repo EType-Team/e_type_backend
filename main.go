@@ -26,6 +26,6 @@ func main() {
 	userWordProgressUsecase := usecase.NewUserWordProgressUsecase(userWordProgressRepository, userWordProgressValidator)
 	userWordProgressController := controller.NewUserWordProgressController(userWordProgressUsecase)
 
-	e := router.NewRouter(userController, userWordProgressController)
+	e := router.NewRouter(userController, lessonController, userWordProgressController)
 	e.Logger.Fatal(e.Start(":8080"))
 }
