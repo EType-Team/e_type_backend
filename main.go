@@ -17,6 +17,10 @@ func main() {
 	userUsecase := usecase.NewUserUsecase(userRepository, userValidator)
 	userController := controller.NewUserController(userUsecase)
 
+	lessonRepository := repository.NewLessonRepository(db)
+	lessonUsecase := usecase.NewLessonUsecase(lessonRepository)
+	lessonController := controller.NewLessonController(lessonUsecase)
+
 	userWordProgressValidator := validator.NewUserWordProgressValidator()
 	userWordProgressRepository := repository.NewUserWordProgressRepository(db)
 	userWordProgressUsecase := usecase.NewUserWordProgressUsecase(userWordProgressRepository, userWordProgressValidator)
