@@ -21,11 +21,20 @@ func main() {
 	lessonUsecase := usecase.NewLessonUsecase(lessonRepository)
 	lessonController := controller.NewLessonController(lessonUsecase)
 
+	lessonWordRepository := repository.NewLessonWordRepository(db)
+	lessonWordUsecase := usecase.NewLessonWordUsecase(lessonWordRepository)
+	lessonWordController := controller.NewLessonWordController(lessonWordUsecase)
+
 	userWordProgressValidator := validator.NewUserWordProgressValidator()
 	userWordProgressRepository := repository.NewUserWordProgressRepository(db)
 	userWordProgressUsecase := usecase.NewUserWordProgressUsecase(userWordProgressRepository, userWordProgressValidator)
 	userWordProgressController := controller.NewUserWordProgressController(userWordProgressUsecase)
 
-	e := router.NewRouter(userController, lessonController, userWordProgressController)
+	e := router.NewRouter(
+		userController,
+		lessonController,
+		lessonWordController,
+		userWordProgressController,
+	)
 	e.Logger.Fatal(e.Start(":8080"))
 }
