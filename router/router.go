@@ -13,6 +13,7 @@ import (
 func NewRouter(
 	uc controller.IUserController,
 	lc controller.ILessonController,
+	lwc controller.ILessonWordController,
 	uwpc controller.IUserWordProgressController,
 ) *echo.Echo {
 	e := echo.New()
@@ -46,6 +47,9 @@ func NewRouter(
 	l := securedGroup.Group("/lessons")
 	l.GET("", lc.GetAllLesson)
 	l.GET("/:lessonId", lc.GetLessonById)
+
+	lw := securedGroup.Group("/lessonWord")
+	lw.GET("/:lessonId", lwc.GetLessonWordByLessonId)
 
 	uwp := securedGroup.Group("/userWordProgresses")
 	uwp.GET("", uwpc.GetAllUserWordProgress)
