@@ -39,7 +39,7 @@ func (uwpr *userWordProgressRepository) GetUserWordProgressById(userWordProgress
 
 func (uwpr *userWordProgressRepository) CreateUserWordProgress(userWordProgress *model.UserWordProgress) error {
 	if err := uwpr.db.Create(userWordProgress).Error; err != nil {
-		return nil
+		return err
 	}
 	return nil
 }
