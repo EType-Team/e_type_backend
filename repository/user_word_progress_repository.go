@@ -2,10 +2,8 @@ package repository
 
 import (
 	"api/model"
-	"fmt"
 
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type IUserWordProgressRepository interface {
