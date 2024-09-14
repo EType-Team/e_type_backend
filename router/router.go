@@ -54,8 +54,7 @@ func NewRouter(
 
 	uwp := securedGroup.Group("/userWordProgresses")
 	uwp.GET("", uwpc.GetAllUserWordProgress)
-	uwp.GET("/:userWordProgressId", uwpc.GetUserWordProgressById)
-	uwp.POST("", uwpc.CreateUserWordProgress)
-	uwp.PUT("/:userWordProgressId", uwpc.UpdateUserWordProgress)
+	uwp.POST("/incrementProgress", uwpc.IncrementOrCreateUserWordProgress)
+	uwp.GET("/:wordId", uwpc.GetUserWordProgressByWordId)
 	return e
 }
