@@ -10,7 +10,7 @@ type IUserWordProgressRepository interface {
 	GetAllUserWordProgress(userWordProgress *[]model.UserWordProgress, userId uint) error
 	GetUserWordProgressByWordId(userWordProgress *model.UserWordProgress, userId uint, wordId uint) error
 	CreateUserWordProgress(userWordProgress *model.UserWordProgress) error
-	UpdateUserWordProgress(userWordProgress *model.UserWordProgress, userId uint, userWordProgressId uint) error
+	UpdateUserWordProgress(userWordProgress *model.UserWordProgress) error
 	FindOrCreateUserWordProgress(userId uint, wordId uint) (*model.UserWordProgress, error)
 }
 
@@ -43,24 +43,12 @@ func (uwpr *userWordProgressRepository) CreateUserWordProgress(userWordProgress 
 	return nil
 }
 
-func (uwpr *userWordProgressRepository) UpdateUserWordProgress(userWordProgress *model.UserWordProgress, userId uint, userWordProgressId uint) error {
-	existingUserWordProgress := model.UserWordProgress{}
-	if err := uwpr.db.Where("id=? AND user_id=?", userWordProgressId, userId).First(&existingUserWordProgress).Error; err != nil {
+func (uwpr *userWordProgressRepository) UpdateUserWordProgress(userWordProgress *model.UserWordProgress) error {
+	if err := uwpr.db.Save(userWordProgress).Error; err != nil {
 		return err
 	}
-
-	existingUserWordProgress.TotalTypings += 1
-
-	result := uwpr.db.Model(&existingUserWordProgress).Clauses(clause.Returning{}).Where("id=? AND user_id=?", userWordProgressId, userId).Updates(map[string]interface{}{
-		"total_typings": existingUserWordProgress.TotalTypings,
-		"typing_speed":  userWordProgress.TypingSpeed,
-		"proficiency":   0.0,
-	})
-	if result.Error != nil {
-		return result.Error
-	}
-	if result.RowsAffected < 1 {
-		return fmt.Errorf("object dose not exist")
+	return nil
+}
 	}
 	return nil
 }
