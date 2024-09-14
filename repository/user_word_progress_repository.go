@@ -23,7 +23,7 @@ func NewUserWordProgressRepository(db *gorm.DB) IUserWordProgressRepository {
 }
 
 func (uwpr *userWordProgressRepository) GetAllUserWordProgress(userWordProgress *[]model.UserWordProgress, userId uint) error {
-	if err := uwpr.db.Where("user_id=?", userId).Order("updated_at").Find(userWordProgress).Error; err != nil {
+	if err := uwpr.db.Where("user_id=?", userId).Find(userWordProgress).Error; err != nil {
 		return err
 	}
 	return nil
