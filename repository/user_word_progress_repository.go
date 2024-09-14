@@ -9,9 +9,7 @@ import (
 type IUserWordProgressRepository interface {
 	GetAllUserWordProgress(userWordProgress *[]model.UserWordProgress, userId uint) error
 	GetUserWordProgressByWordId(userWordProgress *model.UserWordProgress, userId uint, wordId uint) error
-	CreateUserWordProgress(userWordProgress *model.UserWordProgress) error
-	UpdateUserWordProgress(userWordProgress *model.UserWordProgress) error
-	FindOrCreateUserWordProgress(userWordProgress *model.UserWordProgress, userId uint, wordId uint) error
+	CreateOrUpdateUserWordProgress(userWordProgress *model.UserWordProgress, userId uint, wordId uint) error
 }
 
 type userWordProgressRepository struct {
@@ -23,36 +21,35 @@ func NewUserWordProgressRepository(db *gorm.DB) IUserWordProgressRepository {
 }
 
 func (uwpr *userWordProgressRepository) GetAllUserWordProgress(userWordProgress *[]model.UserWordProgress, userId uint) error {
-	if err := uwpr.db.Where("user_id=?", userId).Find(userWordProgress).Error; err != nil {
+	if err := uwpr.db.Where("user_id=?", userId).Preload("Word").Find(userWordProgress).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
 func (uwpr *userWordProgressRepository) GetUserWordProgressByWordId(userWordProgress *model.UserWordProgress, userId uint, wordId uint) error {
-	if err := uwpr.db.Where("user_id=? AND word_id=?", userId, wordId).First(userWordProgress).Error; err != nil {
+	if err := uwpr.db.Where("user_id=? AND word_id=?", userId, wordId).Preload("Word").First(userWordProgress).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (uwpr *userWordProgressRepository) CreateUserWordProgress(userWordProgress *model.UserWordProgress) error {
-	if err := uwpr.db.Create(userWordProgress).Error; err != nil {
-		return err
-	}
-	return nil
-}
+func (uwpr *userWordProgressRepository) CreateOrUpdateUserWordProgress(userWordProgress *model.UserWordProgress, userId uint, wordId uint) error {
+	result := uwpr.db.Where("user_id = ? AND word_id = ?", userId, wordId).First(userWordProgress)
 
-func (uwpr *userWordProgressRepository) UpdateUserWordProgress(userWordProgress *model.UserWordProgress) error {
-	if err := uwpr.db.Save(userWordProgress).Error; err != nil {
-		return err
+	if result.RowsAffected > 0 {
+		userWordProgress.TotalTypings += 1
+		if err := uwpr.db.Save(userWordProgress).Error; err != nil {
+			return err
+		}
+	} else {
+		userWordProgress.UserID = userId
+		userWordProgress.WordID = wordId
+		userWordProgress.TotalTypings = 1
+		if err := uwpr.db.Create(userWordProgress).Error; err != nil {
+			return err
+		}
 	}
-	return nil
-}
 
-func (uwpr *userWordProgressRepository) FindOrCreateUserWordProgress(userWordProgress *model.UserWordProgress, userId uint, wordId uint) error {
-	if err := uwpr.db.Where("user_id=? AND word_id=?", userId, wordId).FirstOrCreate(userWordProgress).Error; err != nil {
-		return err
-	}
 	return nil
 }
