@@ -8,7 +8,7 @@ import (
 
 type IUserWordProgressRepository interface {
 	GetAllUserWordProgress(userWordProgress *[]model.UserWordProgress, userId uint) error
-	GetUserWordProgressById(userWordProgress *model.UserWordProgress, userId uint, userWordProgressId uint) error
+	GetUserWordProgressByWordId(userWordProgress *model.UserWordProgress, userId uint, wordId uint) error
 	CreateUserWordProgress(userWordProgress *model.UserWordProgress) error
 	UpdateUserWordProgress(userWordProgress *model.UserWordProgress, userId uint, userWordProgressId uint) error
 	FindOrCreateUserWordProgress(userId uint, wordId uint) (*model.UserWordProgress, error)
@@ -29,8 +29,8 @@ func (uwpr *userWordProgressRepository) GetAllUserWordProgress(userWordProgress 
 	return nil
 }
 
-func (uwpr *userWordProgressRepository) GetUserWordProgressById(userWordProgress *model.UserWordProgress, userId uint, userWordProgressId uint) error {
-	if err := uwpr.db.Where("user_id=?", userId).First(userWordProgress, userWordProgressId).Error; err != nil {
+func (uwpr *userWordProgressRepository) GetUserWordProgressByWordId(userWordProgress *model.UserWordProgress, userId uint, wordId uint) error {
+	if err := uwpr.db.Where("user_id=? AND word_id=?", userId, wordId).First(userWordProgress).Error; err != nil {
 		return err
 	}
 	return nil
