@@ -55,6 +55,7 @@ func (uwpu *userWordProgressUsecase) GetUserWordProgressByWordId(userId uint, wo
 		ID:           userWordProgress.ID,
 		UserID:       userWordProgress.UserID,
 		WordID:       userWordProgress.WordID,
+		Word:         userWordProgress.Word,
 		TotalTypings: userWordProgress.TotalTypings,
 		TypingSpeed:  userWordProgress.TypingSpeed,
 		Proficiency:  userWordProgress.Proficiency,
