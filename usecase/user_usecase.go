@@ -12,9 +12,10 @@ import (
 )
 
 type IUserUsecase interface {
+	GetUserById(userId uint) (model.UserResponse, error)
 	SignUp(user model.User) (model.UserResponse, error)
 	Login(user model.User) (string, error)
-GetUserByEmail(user *model.User, email string) error
+	GetUserByEmail(user *model.User, email string) error
 	CreateUser(user *model.User) error
 	GenerateJWT(userID uint) (string, error)
 }
@@ -26,6 +27,20 @@ type userUsecase struct {
 
 func NewUserUsecase(ur repository.IUserRepository, uv validator.IUserValidator) IUserUsecase {
 	return &userUsecase{ur, uv}
+}
+
+func (uu *userUsecase) GetUserById(userId uint) (model.UserResponse, error) {
+	user := model.User{}
+	if err := uu.ur.GetUserById(&user, userId); err != nil {
+		return model.UserResponse{}, err
+	}
+	resUser := model.UserResponse{
+		ID:    user.ID,
+		Name:  user.Name,
+		Email: user.Email,
+		Image: user.Image,
+	}
+	return resUser, nil
 }
 
 func (uu *userUsecase) SignUp(user model.User) (model.UserResponse, error) {
