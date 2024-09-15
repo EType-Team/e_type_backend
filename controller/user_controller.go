@@ -3,18 +3,19 @@ package controller
 import (
 	"api/model"
 	"api/usecase"
-"context"
+	"context"
 	"encoding/json"
 	"net/http"
 	"os"
 	"time"
 
-"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/labstack/echo/v4"
-"golang.org/x/oauth2"
+	"golang.org/x/oauth2"
 )
 
 type IUserController interface {
+	GetUser(c echo.Context) error
 	SignUp(c echo.Context) error
 	LogIn(c echo.Context) error
 	LogOut(c echo.Context) error
@@ -34,6 +35,17 @@ func NewUserController(uu usecase.IUserUsecase, oauthConfig *oauth2.Config) IUse
 		oauthConfig,
 	}
 }
+
+func (uc *userController) GetUser(c echo.Context) error {
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	userId := claims["user_id"]
+
+	userRes, err := uc.uu.GetUserById(uint(userId.(float64)))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, userRes)
 }
 
 func (uc *userController) SignUp(c echo.Context) error {
