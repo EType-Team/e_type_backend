@@ -47,6 +47,9 @@ func NewRouter(
 		TokenLookup: "cookie:token",
 	}))
 
+	user := securedGroup.Group("/user")
+	user.GET("", uc.GetUser)
+
 	l := securedGroup.Group("/lessons")
 	l.GET("", lc.GetAllLesson)
 	l.GET("/:lessonId", lc.GetLessonById)
