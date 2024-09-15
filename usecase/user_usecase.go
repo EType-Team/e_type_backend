@@ -14,6 +14,9 @@ import (
 type IUserUsecase interface {
 	SignUp(user model.User) (model.UserResponse, error)
 	Login(user model.User) (string, error)
+GetUserByEmail(user *model.User, email string) error
+	CreateUser(user *model.User) error
+	GenerateJWT(userID uint) (string, error)
 }
 
 type userUsecase struct {
@@ -72,4 +75,20 @@ func (uu *userUsecase) Login(user model.User) (string, error) {
 		return "", err
 	}
 	return tokenString, nil
+}
+
+func (uu *userUsecase) GetUserByEmail(user *model.User, email string) error {
+	return uu.ur.GetUserByEmail(user, email)
+}
+
+func (uu *userUsecase) CreateUser(user *model.User) error {
+	return uu.ur.CreateUser(user)
+}
+
+func (uu *userUsecase) GenerateJWT(userID uint) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": userID,
+		"exp":     time.Now().Add(time.Hour * 12).Unix(),
+	})
+	return token.SignedString([]byte(os.Getenv("SECRET")))
 }
