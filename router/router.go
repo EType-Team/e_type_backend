@@ -22,7 +22,7 @@ func NewRouter(
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept,
 			echo.HeaderAccessControlAllowHeaders, echo.HeaderXCSRFToken,
 			"Authorization", "Cookies"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", http.MethodOptions},
 		AllowCredentials: true,
 	}))
 	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
@@ -49,6 +49,7 @@ func NewRouter(
 
 	user := securedGroup.Group("/user")
 	user.GET("", uc.GetUser)
+	user.POST("/update", uc.UpdateUser)
 
 	l := securedGroup.Group("/lessons")
 	l.GET("", lc.GetAllLesson)
