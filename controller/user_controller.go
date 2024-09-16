@@ -5,7 +5,6 @@ import (
 	"api/usecase"
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -58,8 +57,6 @@ func (uc *userController) UpdateUser(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 	userId := claims["user_id"]
-
-	fmt.Println(user)
 
 	userRes, err := uc.uu.UpdateUser(user, uint(userId.(float64)))
 	if err != nil {
