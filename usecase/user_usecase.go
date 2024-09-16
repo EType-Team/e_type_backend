@@ -17,6 +17,7 @@ type IUserUsecase interface {
 	Login(user model.User) (string, error)
 	GetUserByEmail(user *model.User, email string) error
 	CreateUser(user *model.User) error
+	UpdateUser(user model.User, userId uint) (model.UserResponse, error)
 	GenerateJWT(userID uint) (string, error)
 }
 
@@ -98,6 +99,19 @@ func (uu *userUsecase) GetUserByEmail(user *model.User, email string) error {
 
 func (uu *userUsecase) CreateUser(user *model.User) error {
 	return uu.ur.CreateUser(user)
+}
+
+func (uu *userUsecase) UpdateUser(user model.User, userId uint) (model.UserResponse, error) {
+	if err := uu.ur.UpdateUser(&user, userId); err != nil {
+		return model.UserResponse{}, err
+	}
+	resUser := model.UserResponse{
+		ID:    user.ID,
+		Name:  user.Name,
+		Email: user.Email,
+		Image: user.Image,
+	}
+	return resUser, nil
 }
 
 func (uu *userUsecase) GenerateJWT(userID uint) (string, error) {

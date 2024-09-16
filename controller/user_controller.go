@@ -5,6 +5,7 @@ import (
 	"api/usecase"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -16,6 +17,7 @@ import (
 
 type IUserController interface {
 	GetUser(c echo.Context) error
+	UpdateUser(c echo.Context) error
 	SignUp(c echo.Context) error
 	LogIn(c echo.Context) error
 	LogOut(c echo.Context) error
@@ -42,6 +44,24 @@ func (uc *userController) GetUser(c echo.Context) error {
 	userId := claims["user_id"]
 
 	userRes, err := uc.uu.GetUserById(uint(userId.(float64)))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, userRes)
+}
+
+func (uc *userController) UpdateUser(c echo.Context) error {
+	user := model.User{}
+	if err := c.Bind(&user); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	token := c.Get("user").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	userId := claims["user_id"]
+
+	fmt.Println(user)
+
+	userRes, err := uc.uu.UpdateUser(user, uint(userId.(float64)))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
@@ -97,7 +117,7 @@ func (uc *userController) LogOut(c echo.Context) error {
 }
 
 func (uc *userController) CsrfToken(c echo.Context) error {
-	token := c.Get("csrf").(string) // 型アサーションとは
+	token := c.Get("csrf").(string)
 	return c.JSON(http.StatusOK, echo.Map{
 		"csrf_token": token,
 	})
