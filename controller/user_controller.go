@@ -183,9 +183,9 @@ func (uc *userController) GoogleCallback(c echo.Context) error {
 	cookie.Expires = time.Now().Add(24 * time.Hour)
 	cookie.Path = "/"
 	cookie.Domain = os.Getenv("API_DOMAIN")
-	cookie.Secure = false // 開発環境では false にする
+	cookie.Secure = true
 	cookie.HttpOnly = true
-	cookie.SameSite = http.SameSiteLaxMode // または適切な SameSite モードを選択
+	cookie.SameSite = http.SameSiteNoneMode
 	c.SetCookie(cookie)
 
 	return c.Redirect(http.StatusTemporaryRedirect, os.Getenv("FRONTEND_REDIRECT_URL"))
