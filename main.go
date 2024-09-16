@@ -7,20 +7,14 @@ import (
 	"api/router"
 	"api/usecase"
 	"api/validator"
-	"log"
 	"os"
 
-	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
+	db := db.NewDB()
 	oauthConfig := &oauth2.Config{
 		RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URI"),
 		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
@@ -32,8 +26,6 @@ func main() {
 		},
 		Endpoint: google.Endpoint,
 	}
-
-	db := db.NewDB()
 
 	userValidator := validator.NewUserValidator()
 	userRepository := repository.NewUserRepository(db)
