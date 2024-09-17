@@ -36,9 +36,6 @@ func NewRouter(
 	a := e.Group("/api")
 	a.GET("/auth/google/login", uc.GoogleLogin)
 	a.GET("/auth/google/callback", uc.GoogleCallback)
-	a.POST("/signup", uc.SignUp)
-	a.POST("/login", uc.LogIn)
-	a.POST("/logout", uc.LogOut)
 	a.GET("/csrf", uc.CsrfToken)
 
 	securedGroup := a.Group("")
