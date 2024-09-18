@@ -2,6 +2,7 @@ package router
 
 import (
 	"api/controller"
+	"log"
 	"net/http"
 	"os"
 
@@ -42,6 +43,10 @@ func NewRouter(
 	securedGroup.Use(echojwt.WithConfig(echojwt.Config{
 		SigningKey:  []byte(os.Getenv("SECRET")),
 		TokenLookup: "cookie:token",
+		ErrorHandler: func(c echo.Context, err error) error {
+			log.Printf("JWT Error: %v", err)
+			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "invalid or expired jwt"})
+		},
 	}))
 
 	user := securedGroup.Group("/user")
