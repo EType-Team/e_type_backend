@@ -2,7 +2,6 @@ package router
 
 import (
 	"api/controller"
-	"log"
 	"net/http"
 	"os"
 
@@ -34,31 +33,26 @@ func NewRouter(
 		// CookieSameSite: http.SameSiteDefaultMode,
 		// CookieMaxAge: 60
 	}))
-	a := e.Group("/api")
-	a.GET("/auth/google/login", uc.GoogleLogin)
-	a.GET("/auth/google/callback", uc.GoogleCallback)
-	a.GET("/csrf", uc.CsrfToken)
+	e.GET("/auth/google/login", uc.GoogleLogin)
+	e.GET("/auth/google/callback", uc.GoogleCallback)
+	e.GET("/csrf", uc.CsrfToken)
 
-	securedGroup := a.Group("")
+	l := e.Group("/lessons")
+	l.GET("", lc.GetAllLesson)
+	l.GET("/:lessonId", lc.GetLessonById)
+
+	lw := e.Group("/lessonWord")
+	lw.GET("/:lessonId", lwc.GetLessonWordByLessonId)
+
+	securedGroup := e.Group("")
 	securedGroup.Use(echojwt.WithConfig(echojwt.Config{
 		SigningKey:  []byte(os.Getenv("SECRET")),
 		TokenLookup: "cookie:token",
-		ErrorHandler: func(c echo.Context, err error) error {
-			log.Printf("JWT Error: %v", err)
-			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "invalid or expired jwt"})
-		},
 	}))
 
 	user := securedGroup.Group("/user")
 	user.GET("", uc.GetUser)
 	user.POST("/update", uc.UpdateUser)
-
-	l := securedGroup.Group("/lessons")
-	l.GET("", lc.GetAllLesson)
-	l.GET("/:lessonId", lc.GetLessonById)
-
-	lw := securedGroup.Group("/lessonWord")
-	lw.GET("/:lessonId", lwc.GetLessonWordByLessonId)
 
 	uwp := securedGroup.Group("/userWordProgresses")
 	uwp.GET("", uwpc.GetAllUserWordProgress)
