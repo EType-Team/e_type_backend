@@ -24,9 +24,28 @@ func main() {
 		&model.UserWordProgress{},
 	)
 
+	if err := DropColumns(dbConn); err != nil {
+		log.Fatalf("Failed to drop columns: %v", err)
+	}
+
 	if err := SeedDatabase(dbConn); err != nil {
 		log.Fatalf("Failed to seed database: %v", err)
 	}
+}
+
+func DropColumns(db *gorm.DB) error {
+	err := db.Migrator().DropColumn(&model.UserWordProgress{}, "typing_speed")
+	if err != nil {
+		return fmt.Errorf("failed to drop column 'typing_speed' from 'user_word_progress' table: %w", err)
+	}
+
+	err = db.Migrator().DropColumn(&model.UserWordProgress{}, "proficiency")
+	if err != nil {
+		return fmt.Errorf("failed to drop column 'proficiency' from 'user_word_progress' table: %w", err)
+	}
+
+	fmt.Println("Columns dropped successfully")
+	return nil
 }
 
 func SeedDatabase(db *gorm.DB) error {
