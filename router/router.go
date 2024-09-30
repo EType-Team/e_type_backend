@@ -40,6 +40,7 @@ func NewRouter(
 	l := e.Group("/lessons")
 	l.GET("", lc.GetAllLesson)
 	l.GET("/:lessonId", lc.GetLessonById)
+	l.POST("", lc.CreateLesson)
 
 	lw := e.Group("/lessonWord")
 	lw.GET("/:lessonId", lwc.GetLessonWordByLessonId)
