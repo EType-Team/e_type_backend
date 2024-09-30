@@ -8,6 +8,7 @@ import (
 
 type IWordRepository interface {
 	GetWordById(word *model.Word, wordId uint) error
+	CreateWord(word *model.Word) error
 }
 
 type wordRepository struct {
@@ -23,4 +24,8 @@ func (wr *wordRepository) GetWordById(word *model.Word, wordId uint) error {
 		return err
 	}
 	return nil
+}
+
+func (wr *wordRepository) CreateWord(word *model.Word) error {
+	return wr.db.Create(word).Error
 }
