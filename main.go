@@ -33,7 +33,8 @@ func main() {
 	userController := controller.NewUserController(userUsecase, oauthConfig)
 
 	lessonRepository := repository.NewLessonRepository(db)
-	lessonUsecase := usecase.NewLessonUsecase(lessonRepository)
+	wordRepository := repository.NewWordRepository(db)
+	lessonUsecase := usecase.NewLessonUsecase(lessonRepository,wordRepository)
 	lessonController := controller.NewLessonController(lessonUsecase)
 
 	lessonWordRepository := repository.NewLessonWordRepository(db)
