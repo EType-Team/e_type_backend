@@ -41,6 +41,10 @@ func NewRouter(
 	l.GET("", lc.GetAllLesson)
 	l.GET("/:lessonId", lc.GetLessonById)
 	l.POST("", lc.CreateLesson)
+	l.PUT("/:lessonId", lc.UpdateLesson)
+	l.DELETE("/:lessonId", lc.DeleteLesson)
+	l.POST("/:lessonId/words", lc.AddNewWordToLesson)
+	l.DELETE("/:lessonId/words/:wordId", lc.RemoveWordFromLesson)
 
 	lw := e.Group("/lessonWord")
 	lw.GET("/:lessonId", lwc.GetLessonWordByLessonId)

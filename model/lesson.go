@@ -16,8 +16,13 @@ type LessonResponse struct {
 	Description string `json:"description"`
 }
 
-type CreateLessonRequest struct {
+type LessonRequest struct {
 	Title       string        `json:"title"`
 	Description string        `json:"description"`
 	Words       []WordResponse `json:"words"`
+}
+
+type LessonUpdateRequest struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }

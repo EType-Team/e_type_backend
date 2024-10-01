@@ -9,6 +9,10 @@ type ILessonUsecase interface {
 	GetAllLesson() ([]model.LessonResponse, error)
 	GetLessonById(lessonId uint) (model.LessonResponse, error)
 	CreateLesson(lesson *model.Lesson, words []model.Word) error
+	UpdateLesson(lessonId uint, updateReq model.LessonUpdateRequest) error
+	DeleteLesson(lessonId uint) error
+	AddNewWordToLesson(lessonId uint, word model.Word) error
+	RemoveWordFromLesson(lessonId uint, wordId uint) error
 }
 
 type lessonUsecase struct {
@@ -71,4 +75,28 @@ func (lu *lessonUsecase) CreateLesson(lesson *model.Lesson, words []model.Word) 
     }
 
     return nil
+}
+
+
+func (lu *lessonUsecase) UpdateLesson(lessonId uint, updateReq model.LessonUpdateRequest) error {
+	lesson := &model.Lesson{ID: lessonId, Title: updateReq.Title, Description: updateReq.Description}
+	return lu.lr.UpdateLesson(lesson)
+}
+
+func (lu *lessonUsecase) DeleteLesson(lessonId uint) error {
+	return lu.lr.DeleteLesson(lessonId)
+}
+
+func (lu *lessonUsecase) AddNewWordToLesson(lessonId uint, word model.Word) error {
+    // 新しい単語を作成
+    if err := lu.wr.CreateWord(&word); err != nil {
+        return err
+    }
+    
+    // 作成した単語をレッスンに関連付け
+    return lu.lr.AddWordToLesson(lessonId, word.ID)
+}
+
+func (lu *lessonUsecase) RemoveWordFromLesson(lessonId uint, wordId uint) error {
+	return lu.lr.RemoveWordFromLesson(lessonId, wordId)
 }
