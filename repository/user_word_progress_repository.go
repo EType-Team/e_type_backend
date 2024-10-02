@@ -10,6 +10,7 @@ type IUserWordProgressRepository interface {
 	GetAllUserWordProgress(userWordProgress *[]model.UserWordProgress, userId uint) error
 	GetUserWordProgressByWordId(userWordProgress *model.UserWordProgress, userId uint, wordId uint) error
 	CreateOrUpdateUserWordProgress(userWordProgress *model.UserWordProgress, userId uint, wordId uint) error
+	GetUserWordProgressByWordIds(userWordProgress *[]model.UserWordProgress, userId uint, wordIds []uint) error
 }
 
 type userWordProgressRepository struct {
@@ -51,5 +52,12 @@ func (uwpr *userWordProgressRepository) CreateOrUpdateUserWordProgress(userWordP
 		}
 	}
 
+	return nil
+}
+
+func (uwpr *userWordProgressRepository) GetUserWordProgressByWordIds(userWordProgress *[]model.UserWordProgress, userId uint, wordIds []uint) error {
+	if err := uwpr.db.Where("user_id=? AND word_id IN ?", userId, wordIds).Preload("Word").Find(userWordProgress).Error; err != nil {
+		return err
+	}
 	return nil
 }
