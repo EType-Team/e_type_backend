@@ -59,5 +59,6 @@ func NewRouter(
 	uwp.GET("", uwpc.GetAllUserWordProgress)
 	uwp.POST("/incrementProgress", uwpc.IncrementOrCreateUserWordProgress)
 	uwp.GET("/:wordId", uwpc.GetUserWordProgressByWordId)
+	uwp.GET("/:lessonId", uwpc.GetUserWordProgressByLessonId)
 	return e
 }

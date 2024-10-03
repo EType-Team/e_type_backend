@@ -20,6 +20,7 @@ type UserWordProgressResponse struct {
 	UserID       uint    `json:"user_id" gorm:"not null"`
 	WordID       uint    `json:"word_id" gorm:"not null"`
 	Word         Word    `json:"word"`
+	LessonID     uint    `json:"lessonId"`
 	TotalTypings int     `json:"total_typings"`
 	Proficiency  float64 `json:"proficiency"`
 }
