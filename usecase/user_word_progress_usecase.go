@@ -11,6 +11,7 @@ type IUserWordProgressUsecase interface {
 	IncrementOrCreateUserWordProgress(userWordProgress model.UserWordProgress, userId uint, wordId uint) (model.UserWordProgressResponse, error)
 	GetUserWordProgressByWordId(userId uint, wordId uint) (model.UserWordProgressResponse, error)
 	GetUserWordProgressByLessonId(userId uint, lessonId uint) ([]model.UserWordProgressResponse, error)
+	IncrementOrCreateUserWordTestProgress(userId uint, wordId uint, isCorrect bool) (model.UserWordProgressResponse, error)
 }
 
 type userWordProgressUsecase struct {
@@ -106,6 +107,20 @@ func (uwpu *userWordProgressUsecase) GetUserWordProgressByLessonId(userId uint, 
 			TotalTypings: uwp.TotalTypings,
 			Proficiency:  proficiency,
 		})
+	}
+	return resUserWordProgress, nil
+}
+
+func (uwpu *userWordProgressUsecase) IncrementOrCreateUserWordTestProgress(userId uint, wordId uint, isCorrect bool) (model.UserWordProgressResponse, error) {
+	userWordProgress := model.UserWordProgress{}
+	if err := uwpu.uwpr.CreateOrUpdateUserWordTestProgress(&userWordProgress, userId, wordId, isCorrect); err != nil {
+		return model.UserWordProgressResponse{}, err
+	}
+	resUserWordProgress := model.UserWordProgressResponse{
+		ID:           userWordProgress.ID,
+		UserID:       userWordProgress.UserID,
+		WordID:       userWordProgress.WordID,
+		TotalTypings: userWordProgress.TotalTypings,
 	}
 	return resUserWordProgress, nil
 }
