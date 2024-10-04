@@ -34,7 +34,7 @@ func (uwpu *userWordProgressUsecase) GetAllUserWordProgress(userId uint) ([]mode
 	}
 	resUserWordProgress := []model.UserWordProgressResponse{}
 	for _, v := range userWordProgress {
-		proficiency := model.CalculateProficiency(v.TotalTypings, v.UpdatedAt)
+		proficiency := model.CalculateProficiency(v.TotalTypings, v.CorrectTests, v.TotalTests, v.UpdatedAt)
 		uwp := model.UserWordProgressResponse{
 			ID:           v.ID,
 			UserID:       v.UserID,
@@ -53,7 +53,7 @@ func (uwpu *userWordProgressUsecase) GetUserWordProgressByWordId(userId uint, wo
 	if err := uwpu.uwpr.GetUserWordProgressByWordId(&userWordProgress, userId, wordId); err != nil {
 		return model.UserWordProgressResponse{}, err
 	}
-	proficiency := model.CalculateProficiency(userWordProgress.TotalTypings, userWordProgress.UpdatedAt)
+	proficiency := model.CalculateProficiency(userWordProgress.TotalTypings, userWordProgress.CorrectTests, userWordProgress.TotalTests, userWordProgress.UpdatedAt)
 	resUserWordProgress := model.UserWordProgressResponse{
 		ID:           userWordProgress.ID,
 		UserID:       userWordProgress.UserID,
@@ -96,7 +96,7 @@ func (uwpu *userWordProgressUsecase) GetUserWordProgressByLessonId(userId uint, 
 
 	resUserWordProgress := []model.UserWordProgressResponse{}
 	for _, uwp := range userWordProgress {
-		proficiency := model.CalculateProficiency(uwp.TotalTypings, uwp.UpdatedAt)
+		proficiency := model.CalculateProficiency(uwp.TotalTypings, uwp.CorrectTests, uwp.TotalTests, uwp.UpdatedAt)
 		resUserWordProgress = append(resUserWordProgress, model.UserWordProgressResponse{
 			ID:           uwp.ID,
 			UserID:       uwp.UserID,
