@@ -11,6 +11,8 @@ type UserWordProgress struct {
 	WordID       uint      `json:"word_id" gorm:"not null"`
 	Word         Word      `json:"word" gorm:"foreignKey:WordID"`
 	TotalTypings int       `json:"total_typings"`
+	CorrectTests int       `json:"correct_tests"`
+	TotalTests   int       `json:"total_tests"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }
@@ -25,17 +27,24 @@ type UserWordProgressResponse struct {
 	Proficiency  float64 `json:"proficiency"`
 }
 
-func CalculateProficiency(totalTypings int, updatedAt time.Time) float64 {
-	// 現在時刻と更新時刻の差を計算
+func CalculateProficiency(totalTypings int, correctTests int, totalTests int, updatedAt time.Time) float64 {
+	if totalTypings == 0 {
+		return 0.0
+	}
+
 	timeElapsed := time.Since(updatedAt).Hours()
 
-	// 忘却曲線の係数（回数に基づいて変わる）
-	forgettingRate := 1.0 / float64(totalTypings)
+	var testAccuracy float64
+	if totalTests > 0 {
+		testAccuracy = float64(correctTests) / float64(totalTests)
+	} else {
+		testAccuracy = 0
+	}
 
-	// エビングハウスの忘却曲線を基に熟練度を計算
+	forgettingRate := 1.0 / (float64(totalTypings) + (testAccuracy * float64(totalTests)))
+
 	proficiency := math.Exp(-forgettingRate * timeElapsed)
 
-	// 熟練度は 0.0 から 1.0 の範囲にする
 	if proficiency < 0 {
 		proficiency = 0
 	}
