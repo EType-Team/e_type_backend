@@ -10,18 +10,21 @@ type IUserWordProgressUsecase interface {
 	GetAllUserWordProgress(userId uint) ([]model.UserWordProgressResponse, error)
 	IncrementOrCreateUserWordProgress(userWordProgress model.UserWordProgress, userId uint, wordId uint) (model.UserWordProgressResponse, error)
 	GetUserWordProgressByWordId(userId uint, wordId uint) (model.UserWordProgressResponse, error)
+	GetUserWordProgressByLessonId(userId uint, lessonId uint) ([]model.UserWordProgressResponse, error)
 }
 
 type userWordProgressUsecase struct {
 	uwpr repository.IUserWordProgressRepository
 	uwpv validator.IUserWordProgressValidator
+	lwr  repository.ILessonWordRepository
 }
 
 func NewUserWordProgressUsecase(
 	uwpr repository.IUserWordProgressRepository,
 	uwpv validator.IUserWordProgressValidator,
+	lwr repository.ILessonWordRepository,
 ) IUserWordProgressUsecase {
-	return &userWordProgressUsecase{uwpr, uwpv}
+	return &userWordProgressUsecase{uwpr, uwpv, lwr}
 }
 
 func (uwpu *userWordProgressUsecase) GetAllUserWordProgress(userId uint) ([]model.UserWordProgressResponse, error) {
@@ -38,7 +41,6 @@ func (uwpu *userWordProgressUsecase) GetAllUserWordProgress(userId uint) ([]mode
 			WordID:       v.WordID,
 			Word:         v.Word,
 			TotalTypings: int(v.TotalTypings),
-			TypingSpeed:  v.TypingSpeed,
 			Proficiency:  proficiency,
 		}
 		resUserWordProgress = append(resUserWordProgress, uwp)
@@ -51,14 +53,14 @@ func (uwpu *userWordProgressUsecase) GetUserWordProgressByWordId(userId uint, wo
 	if err := uwpu.uwpr.GetUserWordProgressByWordId(&userWordProgress, userId, wordId); err != nil {
 		return model.UserWordProgressResponse{}, err
 	}
+	proficiency := model.CalculateProficiency(userWordProgress.TotalTypings, userWordProgress.UpdatedAt)
 	resUserWordProgress := model.UserWordProgressResponse{
 		ID:           userWordProgress.ID,
 		UserID:       userWordProgress.UserID,
 		WordID:       userWordProgress.WordID,
 		Word:         userWordProgress.Word,
 		TotalTypings: userWordProgress.TotalTypings,
-		TypingSpeed:  userWordProgress.TypingSpeed,
-		Proficiency:  userWordProgress.Proficiency,
+		Proficiency:  proficiency,
 	}
 	return resUserWordProgress, nil
 }
@@ -72,8 +74,38 @@ func (uwpu *userWordProgressUsecase) IncrementOrCreateUserWordProgress(userWordP
 		UserID:       userWordProgress.UserID,
 		WordID:       userWordProgress.WordID,
 		TotalTypings: userWordProgress.TotalTypings,
-		TypingSpeed:  userWordProgress.TypingSpeed,
-		Proficiency:  userWordProgress.Proficiency,
+	}
+	return resUserWordProgress, nil
+}
+
+func (uwpu *userWordProgressUsecase) GetUserWordProgressByLessonId(userId uint, lessonId uint) ([]model.UserWordProgressResponse, error) {
+	lessonWords := []model.LessonWord{}
+	if err := uwpu.lwr.GetLessonWordByLessonId(&lessonWords, lessonId); err != nil {
+		return nil, err
+	}
+
+	wordIds := []uint{}
+	for _, lw := range lessonWords {
+		wordIds = append(wordIds, lw.WordID)
+	}
+
+	userWordProgress := []model.UserWordProgress{}
+	if err := uwpu.uwpr.GetUserWordProgressByWordIds(&userWordProgress, userId, wordIds); err != nil {
+		return nil, err
+	}
+
+	resUserWordProgress := []model.UserWordProgressResponse{}
+	for _, uwp := range userWordProgress {
+		proficiency := model.CalculateProficiency(uwp.TotalTypings, uwp.UpdatedAt)
+		resUserWordProgress = append(resUserWordProgress, model.UserWordProgressResponse{
+			ID:           uwp.ID,
+			UserID:       uwp.UserID,
+			WordID:       uwp.WordID,
+			Word:         uwp.Word,
+			LessonID:     lessonId,
+			TotalTypings: uwp.TotalTypings,
+			Proficiency:  proficiency,
+		})
 	}
 	return resUserWordProgress, nil
 }

@@ -20,6 +20,7 @@ type IUserController interface {
 	CsrfToken(c echo.Context) error
 	GoogleLogin(c echo.Context) error
 	GoogleCallback(c echo.Context) error
+	Logout(c echo.Context) error
 }
 
 type userController struct {
@@ -138,4 +139,18 @@ func (uc *userController) GoogleCallback(c echo.Context) error {
 	c.SetCookie(cookie)
 
 	return c.Redirect(http.StatusTemporaryRedirect, os.Getenv("FRONTEND_REDIRECT_URL"))
+}
+
+func (uc *userController) Logout(c echo.Context) error {
+	cookie := new(http.Cookie)
+	cookie.Name = "token"
+	cookie.Value = ""
+	cookie.Expires = time.Now()
+	cookie.Path = "/"
+	cookie.Domain = os.Getenv("API_DOMAIN")
+	cookie.Secure = true
+	cookie.HttpOnly = true
+	cookie.SameSite = http.SameSiteNoneMode
+	c.SetCookie(cookie)
+	return c.NoContent(http.StatusOK)
 }

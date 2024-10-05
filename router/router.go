@@ -35,6 +35,7 @@ func NewRouter(
 	}))
 	e.GET("/auth/google/login", uc.GoogleLogin)
 	e.GET("/auth/google/callback", uc.GoogleCallback)
+	e.POST("/logout", uc.Logout)
 	e.GET("/csrf", uc.CsrfToken)
 
 	l := e.Group("/lessons")
@@ -63,5 +64,6 @@ func NewRouter(
 	uwp.GET("", uwpc.GetAllUserWordProgress)
 	uwp.POST("/incrementProgress", uwpc.IncrementOrCreateUserWordProgress)
 	uwp.GET("/:wordId", uwpc.GetUserWordProgressByWordId)
+	uwp.GET("/:lessonId", uwpc.GetUserWordProgressByLessonId)
 	return e
 }

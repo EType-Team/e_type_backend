@@ -11,8 +11,6 @@ type UserWordProgress struct {
 	WordID       uint      `json:"word_id" gorm:"not null"`
 	Word         Word      `json:"word" gorm:"foreignKey:WordID"`
 	TotalTypings int       `json:"total_typings"`
-	TypingSpeed  float64   `json:"typing_speed"`
-	Proficiency  float64   `json:"proficiency"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }
@@ -22,8 +20,8 @@ type UserWordProgressResponse struct {
 	UserID       uint    `json:"user_id" gorm:"not null"`
 	WordID       uint    `json:"word_id" gorm:"not null"`
 	Word         Word    `json:"word"`
+	LessonID     uint    `json:"lessonId"`
 	TotalTypings int     `json:"total_typings"`
-	TypingSpeed  float64 `json:"typing_speed"`
 	Proficiency  float64 `json:"proficiency"`
 }
 
