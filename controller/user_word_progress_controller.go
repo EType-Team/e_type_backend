@@ -15,6 +15,7 @@ type IUserWordProgressController interface {
 	IncrementOrCreateUserWordProgress(c echo.Context) error
 	GetUserWordProgressByWordId(c echo.Context) error
 	GetUserWordProgressByLessonId(c echo.Context) error
+	IncrementOrCreateUserWordTestProgress(c echo.Context) error
 }
 
 type userWordProgressController struct {
@@ -88,4 +89,24 @@ func (uwpc *userWordProgressController) GetUserWordProgressByLessonId(c echo.Con
 	}
 
 	return c.JSON(http.StatusOK, userWordProgress)
+}
+
+func (uwpc *userWordProgressController) IncrementOrCreateUserWordTestProgress(c echo.Context) error {
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	userId := claims["user_id"]
+
+	var requestData struct {
+		WordID    uint `json:"word_id"`
+		IsCorrect bool `json:"is_correct"`
+	}
+	if err := c.Bind(&requestData); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	userWordProgressRes, err := uwpc.uwpu.IncrementOrCreateUserWordTestProgress(uint(userId.(float64)), requestData.WordID, requestData.IsCorrect)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, userWordProgressRes)
 }
