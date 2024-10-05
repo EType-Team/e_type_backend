@@ -4,11 +4,35 @@ import (
 	"api/controller"
 	"net/http"
 	"os"
-
+	"fmt"
+	"github.com/golang-jwt/jwt/v4"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
+
+func isAdminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+    return func(c echo.Context) error {
+        user, ok := c.Get("user").(*jwt.Token)
+        if !ok {
+            fmt.Println("JWTトークンが見つかりません")
+            return c.JSON(http.StatusUnauthorized, map[string]string{
+                "message": "認証エラーです",
+            })
+        }
+        claims := user.Claims.(jwt.MapClaims)
+        role := claims["role"].(string)
+
+        if role != "admin" {
+            fmt.Println("管理者権限がありません")
+            return c.JSON(http.StatusForbidden, map[string]string{
+                "message": "管理者権限が必要です",
+            })
+        }
+        return next(c)
+    }
+}
+
 
 func NewRouter(
 	uc controller.IUserController,
@@ -55,6 +79,17 @@ func NewRouter(
 		SigningKey:  []byte(os.Getenv("SECRET")),
 		TokenLookup: "cookie:token",
 	}))
+
+	adminGroup := securedGroup.Group("/admin")
+	adminGroup.Use(isAdminMiddleware)
+
+	adminGroup.GET("/lessons", lc.GetAllLesson)
+	adminGroup.GET("/lessons/:lessonId", lc.GetLessonById)
+	adminGroup.POST("/lessons", lc.CreateLesson)
+	adminGroup.PUT("/lessons/:lessonId", lc.UpdateLesson)
+	adminGroup.DELETE("/lessons/:lessonId", lc.DeleteLesson)
+	adminGroup.POST("/lessons/:lessonId/words", lc.AddNewWordToLesson)
+	adminGroup.DELETE("/lessons/:lessonId/words/:wordId", lc.RemoveWordFromLesson)
 
 	user := securedGroup.Group("/user")
 	user.GET("", uc.GetUser)
