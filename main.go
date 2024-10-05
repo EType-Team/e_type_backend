@@ -42,7 +42,7 @@ func main() {
 
 	userWordProgressValidator := validator.NewUserWordProgressValidator()
 	userWordProgressRepository := repository.NewUserWordProgressRepository(db)
-	userWordProgressUsecase := usecase.NewUserWordProgressUsecase(userWordProgressRepository, userWordProgressValidator)
+	userWordProgressUsecase := usecase.NewUserWordProgressUsecase(userWordProgressRepository, userWordProgressValidator, lessonWordRepository)
 	userWordProgressController := controller.NewUserWordProgressController(userWordProgressUsecase)
 
 	e := router.NewRouter(
