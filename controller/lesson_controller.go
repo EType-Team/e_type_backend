@@ -49,7 +49,7 @@ func (lc *lessonController) GetLessonById(c echo.Context) error {
 func (lc *lessonController) CreateLesson(c echo.Context) error {
 	var req model.LessonRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid input"})
+		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
 	lesson := model.Lesson{
@@ -68,12 +68,11 @@ func (lc *lessonController) CreateLesson(c echo.Context) error {
 
 	err := lc.lu.CreateLesson(&lesson, words)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{"error": "Failed to register lesson"})
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{"message": "Lesson registered successfully"})
 }
-
 
 func (lc *lessonController) UpdateLesson(c echo.Context) error {
 	id := c.Param("lessonId")
@@ -81,12 +80,12 @@ func (lc *lessonController) UpdateLesson(c echo.Context) error {
 
 	var req model.LessonUpdateRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid input"})
+		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
 	err := lc.lu.UpdateLesson(uint(lessonId), req)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{"error": "Failed to update lesson"})
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{"message": "Lesson updated successfully"})
@@ -98,26 +97,25 @@ func (lc *lessonController) DeleteLesson(c echo.Context) error {
 
 	err := lc.lu.DeleteLesson(uint(lessonId))
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{"error": "Failed to delete lesson"})
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{"message": "Lesson deleted successfully"})
 }
 
 func (lc *lessonController) AddNewWordToLesson(c echo.Context) error {
-    lessonId, _ := strconv.Atoi(c.Param("lessonId"))
-    
-    var word model.Word
-    if err := c.Bind(&word); err != nil {
-        return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid input"})
-    }
+	lessonId, _ := strconv.Atoi(c.Param("lessonId"))
+	var word model.Word
+	if err := c.Bind(&word); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
 
-    err := lc.lu.AddNewWordToLesson(uint(lessonId), word)
-    if err != nil {
-        return c.JSON(http.StatusInternalServerError, echo.Map{"error": "Failed to add new word to lesson"})
-    }
+	err := lc.lu.AddNewWordToLesson(uint(lessonId), word)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
 
-    return c.JSON(http.StatusOK, echo.Map{"message": "New word added to lesson successfully"})
+	return c.JSON(http.StatusOK, echo.Map{"message": "New word added to lesson successfully"})
 }
 
 func (lc *lessonController) RemoveWordFromLesson(c echo.Context) error {
@@ -126,7 +124,7 @@ func (lc *lessonController) RemoveWordFromLesson(c echo.Context) error {
 
 	err := lc.lu.RemoveWordFromLesson(uint(lessonId), uint(wordId))
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{"error": "Failed to remove word from lesson"})
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{"message": "Word removed from lesson successfully"})
