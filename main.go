@@ -34,7 +34,7 @@ func main() {
 
 	lessonRepository := repository.NewLessonRepository(db)
 	wordRepository := repository.NewWordRepository(db)
-	lessonUsecase := usecase.NewLessonUsecase(lessonRepository,wordRepository)
+	lessonUsecase := usecase.NewLessonUsecase(lessonRepository, wordRepository)
 	lessonController := controller.NewLessonController(lessonUsecase)
 
 	lessonWordRepository := repository.NewLessonWordRepository(db)
