@@ -15,7 +15,6 @@ type ILessonRepository interface {
 	DeleteLesson(lessonId uint) error
 	AddWordToLesson(lessonId uint, wordId uint) error
 	RemoveWordFromLesson(lessonId uint, wordId uint) error
-	
 }
 
 type lessonRepository struct {
