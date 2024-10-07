@@ -2,9 +2,9 @@ package router
 
 import (
 	"api/controller"
+	customMiddleware "api/middleware"
 	"net/http"
 	"os"
-
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -41,6 +41,11 @@ func NewRouter(
 	l := e.Group("/lessons")
 	l.GET("", lc.GetAllLesson)
 	l.GET("/:lessonId", lc.GetLessonById)
+	l.POST("", lc.CreateLesson)
+	l.PUT("/:lessonId", lc.UpdateLesson)
+	l.DELETE("/:lessonId", lc.DeleteLesson)
+	l.POST("/:lessonId/words", lc.AddNewWordToLesson)
+	l.DELETE("/:lessonId/words/:wordId", lc.RemoveWordFromLesson)
 
 	lw := e.Group("/lessonWord")
 	lw.GET("/:lessonId", lwc.GetLessonWordByLessonId)
@@ -50,6 +55,17 @@ func NewRouter(
 		SigningKey:  []byte(os.Getenv("SECRET")),
 		TokenLookup: "cookie:token",
 	}))
+
+	adminGroup := securedGroup.Group("/admin")
+	adminGroup.Use(customMiddleware.IsAdminMiddleware)
+
+	adminGroup.GET("/lessons", lc.GetAllLesson)
+	adminGroup.GET("/lessons/:lessonId", lc.GetLessonById)
+	adminGroup.POST("/lessons", lc.CreateLesson)
+	adminGroup.PUT("/lessons/:lessonId", lc.UpdateLesson)
+	adminGroup.DELETE("/lessons/:lessonId", lc.DeleteLesson)
+	adminGroup.POST("/lessons/:lessonId/words", lc.AddNewWordToLesson)
+	adminGroup.DELETE("/lessons/:lessonId/words/:wordId", lc.RemoveWordFromLesson)
 
 	user := securedGroup.Group("/user")
 	user.GET("", uc.GetUser)

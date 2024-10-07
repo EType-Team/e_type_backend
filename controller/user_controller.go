@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 	"time"
-
+	"strings"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/oauth2"
@@ -26,12 +26,16 @@ type IUserController interface {
 type userController struct {
 	uu          usecase.IUserUsecase
 	oauthConfig *oauth2.Config
+	adminEmails []string
 }
 
 func NewUserController(uu usecase.IUserUsecase, oauthConfig *oauth2.Config) IUserController {
+	adminEmailsStr := os.Getenv("ADMIN_EMAILS")
+	adminEmails := strings.Split(adminEmailsStr, ",")
 	return &userController{
 		uu,
 		oauthConfig,
+		adminEmails,
 	}
 }
 
@@ -110,8 +114,15 @@ func (uc *userController) GoogleCallback(c echo.Context) error {
 		Email: userInfo.Email,
 		Name:  userInfo.Name,
 		Image: userInfo.Picture,
+		Role:  "user",
 	}
 
+	for _, adminEmail := range uc.adminEmails {
+		if user.Email == strings.TrimSpace(adminEmail) {
+			user.Role = "admin"
+			break
+		}
+	}
 	storedUser := model.User{}
 	err = uc.uu.GetUserByEmail(&storedUser, user.Email)
 	if err != nil {

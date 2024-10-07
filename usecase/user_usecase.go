@@ -63,8 +63,14 @@ func (uu *userUsecase) UpdateUser(user model.User, userId uint) (model.UserRespo
 }
 
 func (uu *userUsecase) GenerateJWT(userID uint) (string, error) {
+	user := model.User{}
+	if err := uu.ur.GetUserById(&user, userID); err != nil {
+		return "", err
+	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": userID,
+		"role":    user.Role,
 		"exp":     time.Now().Add(time.Hour * 12).Unix(),
 	})
 	return token.SignedString([]byte(os.Getenv("SECRET")))
